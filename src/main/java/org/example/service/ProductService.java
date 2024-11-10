@@ -1,46 +1,48 @@
 package org.example.service;
 
 import org.example.entity.Product;
+import org.example.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductService {
 
-    private List<Product> products = new ArrayList<>();
-    private Long productIdCounter = 1L;
+    private final ProductRepository productRepository;
 
-    public List<Product> getAllProducts() {
-        return products;
+    @Autowired
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
-    public Product getProductById(Long id) {
-        return products.stream()
-                .filter(product -> product.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public Optional<Product> getProductById(Long id) {
+        return productRepository.findById(id);
     }
 
     public Product createProduct(Product product) {
-        product.setId(productIdCounter++);
-        products.add(product);
-        return product;
+        return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, Product updatedProduct) {
-        Product product = getProductById(id);
-        product.setName(updatedProduct.getName());
-        product.setDescription(updatedProduct.getDescription());
-        product.setPrice(updatedProduct.getPrice());
-        product.setInStock(updatedProduct.isInStock());
-        return product;
+    public Product updateProduct(Long id, Product productDetails) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setName(productDetails.getName());
+        product.setDescription(productDetails.getDescription());
+        product.setPrice(productDetails.getPrice());
+        product.setInStock(productDetails.isInStock());
+
+        return productRepository.save(product);
     }
 
     public void deleteProduct(Long id) {
-        Product product = getProductById(id);
-        products.remove(product);
+        productRepository.deleteById(id);
     }
 }

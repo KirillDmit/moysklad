@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.entity.Product;
 import org.example.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
@@ -26,13 +28,14 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id) {
-        return productService.getProductById(id);
+        return productService.getProductById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
-        Product createdProduct = productService.createProduct(product);
-        return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product createProduct(@RequestBody Product product) {
+        return productService.createProduct(product);
     }
 
     @PutMapping("/{id}")
@@ -41,8 +44,8 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
     }
 }

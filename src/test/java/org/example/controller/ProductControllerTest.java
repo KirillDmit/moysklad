@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -44,5 +45,20 @@ public class ProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Test Product\",\"price\":100.0}"))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void testGetProductsEndpoint() throws Exception {
+        mockMvc.perform(get("/api/products/filtered")
+                        .param("name", "book")
+                        .param("minPrice", "50")
+                        .param("maxPrice", "1000")
+                        .param("inStock", "false")
+                        .param("sortField", "price")
+                        .param("sortDirection", "asc")
+                        .param("limit", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("book"));
     }
 }

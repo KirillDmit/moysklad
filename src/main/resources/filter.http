@@ -1,0 +1,1 @@
+GET http://localhost:8080/api/products/filtered?name=book&minPrice=100&maxPrice=1000&inStock=false&sortField=price&sortDirection=asc&limit=10

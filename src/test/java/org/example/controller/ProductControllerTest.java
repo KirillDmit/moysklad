@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.entity.Product;
+import org.example.repository.ProductRepository;
 import org.example.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ public class ProductControllerTest {
     private ProductController productController;
 
     @Mock
+    private ProductRepository productRepository;
+
+    @Mock
     private ProductService productService;
 
     private MockMvc mockMvc;
@@ -49,6 +53,11 @@ public class ProductControllerTest {
 
     @Test
     void testGetProductsEndpoint() throws Exception {
+        Product product1 = new Product();
+        product1.setName("book");
+        product1.setPrice(100);
+        productRepository.save(product1);
+
         mockMvc.perform(get("/api/products/filtered")
                         .param("name", "book")
                         .param("minPrice", "50")

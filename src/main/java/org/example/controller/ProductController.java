@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.util.List;
 
 @RestController
@@ -30,6 +31,19 @@ public class ProductController {
     public Product getProductById(@PathVariable Long id) {
         return productService.getProductById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    @GetMapping("/filtered")
+    public ResponseEntity<List<Product>> getFilteredProducts(
+            @RequestParam(required = false) @Size(max = 50) String name,
+            @RequestParam(required = false) @PositiveOrZero Double minPrice,
+            @RequestParam(required = false) @Positive Double maxPrice,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(required = false) @Pattern(regexp = "name|price") String sortBy,
+            @RequestParam(required = false, defaultValue = "10") @Max(100) Integer limit) {
+
+        List<Product> products = productService.getFilteredProducts(name, minPrice, maxPrice, inStock, sortBy, limit);
+        return ResponseEntity.ok(products);
     }
 
     @PostMapping
